@@ -1,13 +1,21 @@
 import { useState } from 'react';
 
-export const EditForm = ({ task, editItem }) => {
+export const EditItem = ({ task, editItem }) => {
   const [inputValue, setInputValue] = useState(task.name);
-  console.log(task);
+
+  const onKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      editItem(task.id, inputValue);
+    }
+  };
+
   return (
     <>
       <input
         placeholder="edit here"
         value={inputValue}
+        autoFocus
+        onKeyDown={onKeyDown}
         onChange={(e) => {
           setInputValue(e.target.value);
         }}

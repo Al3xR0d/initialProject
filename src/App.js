@@ -1,14 +1,25 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import './App.css';
 import { AddItem } from './AddItem';
+import { Filtres } from './Filtres';
 
 const App = () => {
   const [inputValue, setInputValue] = useState('');
   const [task, setTask] = useState([]);
+  const [currentFilter, setCurrentFilter] = useState('all');
+  const [filteredData, setFilteredData] = useState([]);
+
+  useEffect(() => {
+    setFilteredData(task);
+  }, [task]);
+
+  useEffect(() => {
+    handleData();
+  }, [currentFilter]);
 
   const addItem = () => {
-    setTask((prev) => [...prev, { name: inputValue, id: uuid(), isEdit: false, isFinish: false }]);
+    setTask((prev) => [...prev, { name: inputValue, id: uuid(), isEdit: false, isDone: false }]);
     setInputValue('');
   };
 
@@ -26,22 +37,32 @@ const App = () => {
     setTask(task.filter((item) => item.id !== id));
   };
 
-  const editItem = (id, inputValue) => {
-    console.log(id);
-    // console.log(task);
-    setTask(task.map((item) => (item.id === id ? { ...task, isEdit: !task.isEdit } : { ...task })));
+  const editItem = (id, newName) => {
+    setTask(task.map((item) => (item.id === id ? { ...item, name: newName, isEdit: !item.isEdit } : { ...item })));
   };
 
-  // const editTask = (task, id) => {
-  //   setTask(task.map((todo) => (todo.id === id ? { ...todo, task, isEdit: !todo.iisEdit } : todo)));
-  // };
+  const handleDone = (id) => {
+    setTask(task.map((item) => (item.id === id ? { ...item, isDone: !item.isDone } : { ...item })));
+  };
+
+  const handleData = () => {
+    if (currentFilter === 'deleted') {
+      setFilteredData(task.filter((item) => !!item.isDone));
+    } else if (currentFilter === 'inWork') {
+      setFilteredData(task.filter((item) => !item.isDone));
+    } else {
+      setFilteredData(task);
+    }
+  };
 
   return (
     <>
       <input placeholder="tap here" value={inputValue} onChange={updateState} onKeyDown={onKeyDown} />
       <button onClick={addItem}>Добавить</button>
+      <br />
+      <Filtres setCurrentFilter={setCurrentFilter} />
       <ul>
-        <AddItem task={task} deleteItem={deleteItem} editItem={editItem} />
+        <AddItem task={filteredData} deleteItem={deleteItem} editItem={editItem} handleDone={handleDone} />
       </ul>
     </>
   );
