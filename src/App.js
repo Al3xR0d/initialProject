@@ -42,7 +42,17 @@ const App = () => {
   };
 
   const handleDone = (id) => {
-    setTask(task.map((item) => (item.id === id ? { ...item, isDone: !item.isDone } : { ...item })));
+    setTask(
+      task
+        .map((item) => (item.id === id ? { ...item, isDone: !item.isDone } : { ...item }))
+        .sort((a, b) => {
+          if (a.isDone && !b.isDone) {
+            return 1;
+          } else if (!a.isDone && b.isDone) {
+            return -1;
+          } else return 0;
+        })
+    );
   };
 
   const handleData = () => {
